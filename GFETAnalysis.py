@@ -5,11 +5,11 @@ import scipy.signal
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 import cv2
-import cust_mod
+from github_custom_module.cust_mod import Folder_Path
 
 w = 5*10**-6  # channel_width
 
-cust_mod.set_folder_path()
+Folder_Path.set_folder_path()
 
 tree = ET.parse('sample.xml')
 root = tree.getroot()
