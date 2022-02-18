@@ -5,7 +5,7 @@ import scipy.signal
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 import cv2
-from github_custom_module.cust_mod import Folder_Path
+from github_custom_module.cust_mod import Folder_Path, db_conn
 
 w = 5*10**-6  # channel_width
 
@@ -32,7 +32,7 @@ for child in root:
     ch_l = int(child[0].text)
     print(name)
     img = cv2.rectangle(img, ((int(name[1]))*80-80, (n_y - int(name[0]))*80),
-                        ((int(name[1]))*80, (n_y - int(name[0]))*80-80), cust_mod.db_conn(ch_l).db_conn(loc_host="127.0.0.1" , user = "root" , db ="tutorial_sql", db_tab="gate_polimi"), -1)
+                        ((int(name[1]))*80, (n_y - int(name[0]))*80-80), db_conn(ch_l).db_conn(loc_host="127.0.0.1" , user = "root" , db ="tutorial_sql", db_tab="gate_polimi"), -1)
     img = cv2.putText(img, name, ((
         int(name[1]))*80 - 80, (n_y - int(name[0]))*80-10), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
     cv2.imwrite('map.png', img)
