@@ -5,7 +5,7 @@ import scipy.signal
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 import cv2
-from github_custom_module.cust_mod import Folder_Path, db_conn
+from github_custom_module.cust_mod import Folder_Path, db_conn, cycle
 
 w = 5*10**-6  # channel_width
 
@@ -18,11 +18,6 @@ n_y = int(root.attrib['n_y'])
 font = cv2.FONT_HERSHEY_SIMPLEX
 img = np.zeros([n_x*80,  n_y*80,  3],  np.uint8)
 
-def new_func(data_gm, z, x, y):
-    for row in data_gm:
-        if row[0] == z and row[1] != 0:
-            x.append(row[1])
-            y.append(row[2])
 
 for child in root:
     data_gm = 0
@@ -45,7 +40,7 @@ for child in root:
         for z in vds_list:
             x = []
             y = []
-            new_func(data_gm, z, x, y)
+            cycle(dtable = data_gm, z=z, x=x, y=y)
             plt.plot(x[0:len(x)-1], np.diff(y)/(np.diff(x)*w), label=z, linewidth=0.5)
             f = scipy.interpolate.interp1d(
                 x[0:len(x)-1], np.diff(y)/(np.diff(x)*w), fill_value="extrapolate", kind='slinear')
