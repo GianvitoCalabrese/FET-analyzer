@@ -62,7 +62,7 @@ class StartPage(tk.Frame):
                             command=lambda: controller.show_frame("PageOne"))
         button2 = tk.Button(self, text="Go to Page Two",
                             command=lambda: controller.show_frame("PageTwo"))
-        button3 = tk.Button(self, text="Open File",
+        button3 = tk.Button(self, text="Set Folder Path",
                             command=lambda:StartPage.set_fld_path())
         button1.pack()
         button2.pack()
@@ -70,13 +70,7 @@ class StartPage(tk.Frame):
 
     def set_fld_path():
         Folder_Path.set_folder_path()
-        tree = ET.parse('sample.xml')
-        root = tree.getroot()
-        n_x = int(root.attrib['n_x'])
-        n_y = int(root.attrib['n_y'])
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        img = np.zeros([n_x*80,  n_y*80,  3],  np.uint8)
-        return root, n_x, n_y, img
+        
 
 
 class PageOne(tk.Frame):
