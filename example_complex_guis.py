@@ -16,6 +16,10 @@ except ImportError:
     from Tkinter import filedialog
     import tkFont as tkfont  # python 2
 
+class Transistor:
+    def __init__(self):
+        pass
+
 class SampleApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -49,6 +53,15 @@ class SampleApp(tk.Tk):
         frame = self.frames[page_name]
         frame.tkraise()
 
+    def set_fld_path(self):
+        Folder_Path.set_folder_path()
+        print(Folder_Path.set_folder_path())
+        tree = ET.parse('sample.xml')
+        self.root = tree.getroot()   
+        self.n_x = int(self.root.attrib['n_x'])
+        self.n_y = int(self.root.attrib['n_y'])
+        self.font = cv2.FONT_HERSHEY_SIMPLEX
+        self.img = np.zeros([self.n_x*80,  self.n_y*80,  3],  np.uint8)
 
 class StartPage(tk.Frame):
 
@@ -63,20 +76,12 @@ class StartPage(tk.Frame):
         button2 = tk.Button(self, text="Go to Page Two",
                             command=lambda: controller.show_frame("PageTwo"))
         button3 = tk.Button(self, text="Set the Folder Path",
-                            command=lambda:StartPage.set_fld_path())
+                            command=lambda: controller.set_fld_path())
         button1.pack()
         button2.pack()
         button3.pack()
 
-    def set_fld_path():
-        Folder_Path.set_folder_path()
-        tree = ET.parse('sample.xml')
-        root = tree.getroot()
-        n_x = int(root.attrib['n_x'])
-        n_y = int(root.attrib['n_y'])
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        img = np.zeros([n_x*80,  n_y*80,  3],  np.uint8)
-        #return root, n_x, n_y, img
+
 
 
 class PageOne(tk.Frame):
@@ -88,12 +93,25 @@ class PageOne(tk.Frame):
         label.pack(side="top", fill="x", pady=10)
         button1 = tk.Button(self, text="Go to the start page",
                            command=lambda: controller.show_frame("StartPage"))
-        button2 = tk.Button(self, text="Hist",
-                           command=lambda: PageOne.hist())
+        button2 = tk.Button(self, text="wf_map",
+                           command=lambda: PageOne.wf_map(self))
 
         button1.pack()
         button2.pack()
 
+    def wf_map(self):
+        for child in self.controller.root:
+            data_gm = 0
+            vds_list = 0
+            name = child.get('id')
+            serves_for = child.get('serves_for')
+            ch_l = int(child[0].text)
+            print(name)
+            self.controller.img = cv2.rectangle(self.controller.img, ((int(name[1]))*80-80, (self.controller.n_y - int(name[0]))*80),
+                            ((int(name[1]))*80, (self.controller.n_y - int(name[0]))*80-80), db_conn(ch_l).db_conn(loc_host="127.0.0.1" , user = "root" , db ="tutorial_sql", db_tab="gate_polimi"), -1)
+            self.controller.img = cv2.putText(self.controller.img, name, ((
+            int(name[1]))*80 - 80, (self.controller.n_y - int(name[0]))*80-10), self.controller.font, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.imwrite('map.png', self.controller.img)
 
 
 class PageTwo(tk.Frame):
@@ -106,15 +124,10 @@ class PageTwo(tk.Frame):
         button1 = tk.Button(self, text="Go to the start page",
                            command=lambda: controller.show_frame("StartPage"))
         
-        button2 = tk.Button(self, text="Go to the start page",
-                           command=lambda: PageTwo.show_ROI())
         button1.pack()
-        button2.pack()
+
     
-    def show_ROI():
-        global im
-        r = cv2.selectROI(im, False, False)
-        rows, cols = im.shape[:2]
+
 
 
 if __name__ == "__main__":
