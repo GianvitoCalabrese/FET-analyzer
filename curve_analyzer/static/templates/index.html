@@ -1,0 +1,15 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analizzatore di Curve</title>
+</head>
+<body>
+    <h1>Analizzatore di Curve</h1>
+    <input type="file" @change="uploadFile">
+    <button @click="analyzeData">Analizza Dati</button>
+    <p v-if="analysisResult">Risultato Analisi: {{ analysisResult }}</p>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

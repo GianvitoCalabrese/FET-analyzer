@@ -1,0 +1,34 @@
+{% load static %}
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analizzatore di Curve</title>
+    <style>
+        /* Stile per il canvas */
+        #scatterChart {
+            width: 100%; /* Imposta la larghezza del canvas al 100% del contenitore genitore */
+            height: 400px; /* Imposta l'altezza iniziale del canvas (puoi modificare questo valore) */
+            border: 1px solid #ccc; /* Aggiungi un bordo per evidenziare il canvas */
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>Analizzatore di Curve</h1>
+        <form id="dataForm" method="post" enctype="multipart/form-data" @submit.prevent="submitData">
+            {% csrf_token %}
+            <input type="file" name="data" id="dataInput" v-on:change="fileChanged($event)">
+            <button type="submit">Analizza Dati</button>
+        </form>
+        <!-- Aggiungi qui il paragrafo per visualizzare il risultato -->
+        <p v-if="analysisResult">Risultato Analisi: {{ analysisResult }}</p>
+        <div id="canvasContainer">
+            <canvas id="scatterChart" width="800" height="400"></canvas> <!-- Imposta le dimensioni iniziali del canvas qui -->
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="{% static 'js/main.js' %}?v=1.0"></script>
+</body>
+</html>

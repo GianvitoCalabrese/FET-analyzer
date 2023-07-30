@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seleziona Cartella</title>
+</head>
+<body>
+    <h1>Seleziona una cartella</h1>
+    <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none;">
+    <button onclick="openFolderDialog()">Apri Dialogo Cartella</button>
+    <script>
+        function openFolderDialog() {
+            document.getElementById("folderInput").click();
+        }
+
+        document.getElementById("folderInput").addEventListener("change", function(event) {
+            const folderPath = event.target.files[0].webkitRelativePath;
+            // Invia il percorso della cartella al backend Python
+            fetch('/set_folder_path', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ folderPath: folderPath })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Percorso della cartella inviato con successo!');
+                } else {
+                    console.error('Errore durante l\'invio del percorso della cartella:', response.status);
+                }
+            })
+            .catch(error => {
+                console.error('Errore durante l\'invio del percorso della cartella:', error);
+            });
+        });
+    </script>
+</body>
+</html>
