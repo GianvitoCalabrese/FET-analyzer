@@ -1,4 +1,7 @@
 #!/bin/bash
-django-admin startproject curve_analyzer
+
 cd curve_analyzer
-python manage.py startapp curve_app
+python manage.py migrate
+python manage.py runserver
+
+
