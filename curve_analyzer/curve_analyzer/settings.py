@@ -3,7 +3,7 @@ from django.core.management.utils import get_random_secret_key
 
 SECRET_KEY = get_random_secret_key()
 DEBUG = True
-BASE_DIR = 'C:/Users/tele1/OneDrive/Documenti/GitHub/FET-analyzer/curve_analyzer/'
+BASE_DIR = 'C:/Users/gcalabre/GitHub/FET-analyzer/curve_analyzer/'
 
 DATABASES = {
     'default': {
@@ -39,9 +39,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ROOT_URLCONF = 'curve_analyzer.urls'
 #STATIC_ROOT = 'curve_app/static/'
-STATIC_ROOT = 'C:/Users/tele1/OneDrive/Documenti/GitHub/FET-analyzer/curve_analyzer/curve_app/static'
+STATIC_ROOT = 'C:/Users/gcalabre/GitHub/FET-analyzer/curve_analyzer/curve_app/static'
 
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['C:/Users/tele1/OneDrive/Documenti/GitHub/FET-analyzer/curve_analyzer/curve_app/',]
+STATICFILES_DIRS = ['C:/Users/gcalabre/GitHub/FET-analyzer/curve_analyzer/curve_app/',]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
