@@ -20,6 +20,14 @@
         <form id="dataForm" method="post" enctype="multipart/form-data" @submit.prevent="submitData">
             {% csrf_token %}
             <input type="file" name="data" id="dataInput" v-on:change="fileChanged($event)">
+            <label for="xColumnSelect">Colonna x:</label>
+            <select id="xColumnSelect" v-model="selectedXColumn">
+                <option v-for="column in columnOptions" :value="column">{{ column }}</option>
+            </select>
+            <label for="yColumnSelect">Colonna y:</label>
+            <select id="yColumnSelect" v-model="selectedYColumn">
+                <option v-for="column in columnOptions" :value="column">{{ column }}</option>
+            </select>
             <button type="submit">Analizza Dati</button>
         </form>
         <!-- Aggiungi qui il paragrafo per visualizzare il risultato -->
