@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import pandas as pd
 from scipy import interpolate
-import numpy as np
 import io
 
 def index(request):
@@ -12,11 +11,12 @@ def analyze_data(request):
     if request.method == 'POST':
         if 'data' not in request.FILES:
             return JsonResponse({'error': 'File non ricevuto'})
-        
+        # file lo ricevi dalla chiamata
         file = request.FILES['data']
         x_column = request.POST.get('x_column', 'x')  # Ottieni il nome della colonna x dal POST
         y_column = request.POST.get('y_column', 'y')  # Ottieni il nome della colonna y dal POST
 
+        print(f'Colonna x selezionata: {file}')  # Debugging
         print(f'Colonna x selezionata: {x_column}')  # Debugging
         print(f'Colonna y selezionata: {y_column}')  # Debugging
 
@@ -27,7 +27,12 @@ def analyze_data(request):
         data = io.StringIO(data_str)
         # Leggiamo i dati in un DataFrame
         df = pd.read_csv(data, sep='\t')
-        #print(df)
+        # Selezioniamo tutte le colonne di tipo object
+        cols_to_convert = df.select_dtypes(include='object').columns
+
+        # Convertiamo queste colonne in float
+        df[cols_to_convert] = df[cols_to_convert].apply(pd.to_numeric, errors='coerce')
+        print(df.dtypes)
 
         print('Colonne nel DataFrame:', df.columns)  # Debugging
         # Verifica le colonne presenti nel DataFrame
@@ -48,6 +53,7 @@ def analyze_data(request):
 
         # Restituisci i risultati dell'interpolazione come JSON
         result_data = {'x_values': interpolated_x.tolist(), 'y_values': interpolated_y.tolist()}
+        print('interpolazione', result_data)
         return JsonResponse({'result': result_data})
 
 
