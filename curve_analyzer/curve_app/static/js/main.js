@@ -51,8 +51,8 @@ new Vue({
           console.log('Colonne estratte:', headers); //debugging
           this.columnOptions = headers; // Popola le opzioni delle colonne
           if (this.columnOptions.length > 0) {
-            this.selectedXColumn = this.columnOptions[0]; // Seleziona la prima colonna per x di default
-            this.selectedYColumn = this.columnOptions[1]; // Seleziona la seconda colonna per y di default
+            this.selectedXColumn = this.columnOptions[1]; // Seleziona la prima colonna per x di default
+            this.selectedYColumn = this.columnOptions[2]; // Seleziona la seconda colonna per y di default
           }
         }
       };
