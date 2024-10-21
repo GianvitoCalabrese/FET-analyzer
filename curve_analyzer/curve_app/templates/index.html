@@ -1,15 +1,66 @@
 {% load static %}
 <!-- index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analizzatore di Curve</title>
     <style>
         /* Stile per il canvas */
         #scatterChart {
             width: 100%; /* Imposta la larghezza del canvas al 100% del contenitore genitore */
-            height: 400px; /* Imposta l'altezza iniziale del canvas (puoi modificare questo valore) */
+            height: 400px; /* Imposta l'altezza iniziale del canvas */
             border: 1px solid #ccc; /* Aggiungi un bordo per evidenziare il canvas */
+        }
+
+        /* Stile per i menu a discesa */
+        select {
+            font-size: 16px; /* Aumenta la dimensione del font */
+            padding: 10px; /* Aumenta lo spazio interno del menu */
+            height: auto; /* Assicurati che l'altezza si adatti al contenuto */
+            width: 200px; /* Imposta una larghezza fissa per il menu */
+            margin-bottom: 10px; /* Aggiungi uno spazio inferiore tra i menu e il pulsante */
+            background-color: #ffffff; /* Colore di sfondo bianco per il menu */
+            color: #000000; /* Colore del testo nero per il menu */
+        }
+
+        option {
+            font-size: 16px; /* Aumenta la dimensione del font delle opzioni */
+            padding: 10px; /* Aumenta lo spazio interno delle opzioni */
+        }
+
+        /* Stile per i pulsanti */
+        button {
+            font-size: 16px; /* Aumenta la dimensione del font del pulsante */
+            padding: 10px 20px; /* Aumenta lo spazio interno del pulsante */
+            margin-top: 10px; /* Aggiungi uno spazio sopra il pulsante */
+            background-color: #007bff; /* Colore di sfondo blu */
+            color: white; /* Colore del testo bianco */
+            border: none; /* Rimuovi il bordo predefinito */
+            border-radius: 5px; /* Aggiungi angoli arrotondati */
+            cursor: pointer; /* Cambia il cursore quando si passa sopra il pulsante */
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Colore di sfondo blu scuro al passaggio del mouse */
+        }
+
+        /* Stile per il contenitore del canvas */
+        #canvasContainer {
+            margin-top: 20px; /* Aggiungi uno spazio sopra il contenitore del canvas */
+        }
+
+        /* Stile per il modulo */
+        form {
+            margin-bottom: 20px; /* Spazio inferiore tra il modulo e il canvas */
+        }
+
+        /* Stile per i label */
+        label {
+            font-size: 16px; /* Aumenta la dimensione del font dei label */
+            display: block; /* Imposta i label come blocchi per separare gli elementi */
+            margin-top: 10px; /* Aggiungi uno spazio superiore ai label */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,18 +73,18 @@
             <input type="file" name="data" id="dataInput" v-on:change="fileChanged($event)">
             <label for="xColumnSelect">Colonna x:</label>
             <select id="xColumnSelect" v-model="selectedXColumn">
-                <option v-for="column in columnOptions" :value="column">{{ column }}</option>
+                <option v-for="column in columnOptions" :key="column" :value="column">{{ column }}</option>
             </select>
             <label for="yColumnSelect">Colonna y:</label>
             <select id="yColumnSelect" v-model="selectedYColumn">
-                <option v-for="column in columnOptions" :value="column">{{ column }}</option>
+                <option v-for="column in columnOptions" :key="column" :value="column">{{ column }}</option>
             </select>
             <button type="submit">Analizza Dati</button>
         </form>
-        <!-- Aggiungi qui il paragrafo per visualizzare il risultato -->
+        <!-- Paragrafo per visualizzare il risultato -->
         <p v-if="analysisResult">Risultato Analisi: {{ analysisResult }}</p>
         <div id="canvasContainer">
-            <canvas id="scatterChart" width="800" height="400"></canvas> <!-- Imposta le dimensioni iniziali del canvas qui -->
+            <canvas id="scatterChart"></canvas>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>

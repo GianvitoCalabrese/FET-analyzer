@@ -16,40 +16,27 @@ def analyze_data(request):
     if request.method == 'POST':
         if 'data' not in request.FILES:
             return JsonResponse({'error': 'File non ricevuto'})
-        # file lo ricevi dalla chiamata
+        
         file = request.FILES['data']
         x_column = request.POST.get('x_column', 'x')  # Ottieni il nome della colonna x dal POST
         y_column = request.POST.get('y_column', 'y')  # Ottieni il nome della colonna y dal POST
 
-        print(f'Colonna x selezionata: {file}')  # Debugging
-        print(f'Colonna x selezionata: {x_column}')  # Debugging
-        print(f'Colonna y selezionata: {y_column}')  # Debugging
-
-        lines = file.readlines()
-        # Unire tutti i byte in una sola stringa
-        data_str = b''.join(lines).decode('utf-8')
-        # Creiamo un oggetto StringIO
+        # Leggi il file e convertilo in un DataFrame
+        data_str = b''.join(file.readlines()).decode('utf-8')
         data = io.StringIO(data_str)
-        # Leggiamo i dati in un DataFrame
         df = pd.read_csv(data, sep='\t')
-        # Selezioniamo tutte le colonne di tipo object
+        
+        # Converte le colonne di tipo object in float
         cols_to_convert = df.select_dtypes(include='object').columns
-
-        # Convertiamo queste colonne in float
         df[cols_to_convert] = df[cols_to_convert].apply(pd.to_numeric, errors='coerce')
-        #df.columns = df.columns.str.strip()
-        print(df.dtypes)
+        
+        vds_list = np.unique(df['VDS'].dropna().values)
 
-        print('Colonne nel DataFrame:', df.columns)  # Debugging
-        # Verifica le colonne presenti nel DataFrame
-        #qua interessante perche'se hai l'errore vai nel return ed esci dalla funzione madre...
+        result_data = {
+            'x_values': [],
+            'y_values': []
+        }
 
-        #if x_column not in df.columns or y_column not in df.columns:
-        #    return JsonResponse({'error': f'Il file CSV deve contenere le colonne {x_column} e {y_column}'})
-        # print(df)
-        vds_list = np.unique([row[0] for row in df.itertuples(index=False, name=None) if not pd.isnull(row[0])])
-
-        print('vds list qua', vds_list)
         for z in vds_list:
             x = df.loc[df['VDS'] == z, x_column].values
             y = df.loc[df['VDS'] == z, y_column].values
@@ -71,9 +58,6 @@ def analyze_data(request):
             x_clean, unique_indices = np.unique(x_clean, return_index=True)
             derivative_clean = derivative_clean[unique_indices]
             
-            # Plotta i risultati
-            plt.plot(x_clean, derivative_clean, label=z, linewidth=0.5)
-            
             # Interpolazione
             if len(x_clean) > 1:  # Assicurati di avere abbastanza punti per l'interpolazione
                 f = interp.interp1d(x_clean, derivative_clean, fill_value="extrapolate", kind='slinear')
@@ -87,13 +71,15 @@ def analyze_data(request):
                 
                 # Convoluzione
                 window = scipy.signal.gaussian(200, 60)
-                result_data = scipy.signal.convolve(yy_1, window / window.sum(), mode='same')
-                print(result_data)
+                yy_smooth = scipy.signal.convolve(yy_1, window / window.sum(), mode='same')
                 
-                # Plotta o salva il risultato finale
-                plt.plot(xx_1, result_data, label=f'{z} convoluted', linewidth=0.5)
+                # Aggiungi i risultati alle liste x_values e y_values
+                result_data['x_values'].extend(xx_1.tolist())
+                result_data['y_values'].extend(yy_smooth.tolist())
+                
             else:
                 print(f"Not enough data points for interpolation for VDS = {z}")
+        
         return JsonResponse({'result': result_data})
     else:
         return JsonResponse({'error': 'Metodo non consentito'})

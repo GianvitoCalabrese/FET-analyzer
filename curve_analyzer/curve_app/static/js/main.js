@@ -44,12 +44,15 @@ new Vue({
       reader.onload = (e) => {
         const text = e.target.result;
         console.log('target', text);
-        const lines = text.split('\n');
+        const lines = text.split('\r');
         //console.log('Lines 0:', lines[0]);
         if (lines.length > 0) {
-          const headers = lines[0].split('\t');
-          console.log('Colonne estratte:', headers); //debugging
-          this.columnOptions = headers; // Popola le opzioni delle colonne
+          this.columnOptions = lines[0].split('\t');
+          //console.log('Colonne estratte:', headers); //debugging
+          // = headers; // Popola le opzioni delle colonne
+          console.log('Colonne estratte:', this.columnOptions); //debugging
+          console.log('array:', Array.isArray(this.columnOptions));
+
           if (this.columnOptions.length > 0) {
             this.selectedXColumn = this.columnOptions[1]; // Seleziona la prima colonna per x di default
             this.selectedYColumn = this.columnOptions[2]; // Seleziona la seconda colonna per y di default
