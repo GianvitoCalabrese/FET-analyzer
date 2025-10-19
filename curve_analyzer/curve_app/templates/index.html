@@ -1,66 +1,60 @@
 {% load static %}
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analizzatore di Curve</title>
     <style>
-        /* Stile per il canvas */
         #scatterChart {
-            width: 100%; /* Imposta la larghezza del canvas al 100% del contenitore genitore */
-            height: 400px; /* Imposta l'altezza iniziale del canvas */
-            border: 1px solid #ccc; /* Aggiungi un bordo per evidenziare il canvas */
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ccc;
         }
-
-        /* Stile per i menu a discesa */
         select {
-            font-size: 16px; /* Aumenta la dimensione del font */
-            padding: 10px; /* Aumenta lo spazio interno del menu */
-            height: auto; /* Assicurati che l'altezza si adatti al contenuto */
-            width: 200px; /* Imposta una larghezza fissa per il menu */
-            margin-bottom: 10px; /* Aggiungi uno spazio inferiore tra i menu e il pulsante */
-            background-color: #ffffff; /* Colore di sfondo bianco per il menu */
-            color: #000000; /* Colore del testo nero per il menu */
+            font-size: 16px;
+            padding: 10px;
+            height: auto;
+            width: 200px;
+            margin-bottom: 10px;
         }
-
         option {
-            font-size: 16px; /* Aumenta la dimensione del font delle opzioni */
-            padding: 10px; /* Aumenta lo spazio interno delle opzioni */
+            font-size: 16px;
+            padding: 10px;
         }
-
-        /* Stile per i pulsanti */
         button {
-            font-size: 16px; /* Aumenta la dimensione del font del pulsante */
-            padding: 10px 20px; /* Aumenta lo spazio interno del pulsante */
-            margin-top: 10px; /* Aggiungi uno spazio sopra il pulsante */
-            background-color: #007bff; /* Colore di sfondo blu */
-            color: white; /* Colore del testo bianco */
-            border: none; /* Rimuovi il bordo predefinito */
-            border-radius: 5px; /* Aggiungi angoli arrotondati */
-            cursor: pointer; /* Cambia il cursore quando si passa sopra il pulsante */
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
-
         button:hover {
-            background-color: #0056b3; /* Colore di sfondo blu scuro al passaggio del mouse */
+            background-color: #0056b3;
         }
-
-        /* Stile per il contenitore del canvas */
         #canvasContainer {
-            margin-top: 20px; /* Aggiungi uno spazio sopra il contenitore del canvas */
+            margin-top: 20px;
         }
-
-        /* Stile per il modulo */
         form {
-            margin-bottom: 20px; /* Spazio inferiore tra il modulo e il canvas */
+            margin-bottom: 20px;
         }
-
-        /* Stile per i label */
         label {
-            font-size: 16px; /* Aumenta la dimensione del font dei label */
-            display: block; /* Imposta i label come blocchi per separare gli elementi */
-            margin-top: 10px; /* Aggiungi uno spazio superiore ai label */
+            font-size: 16px;
+            display: block;
+            margin-top: 10px;
+        }
+        select, option {
+            color: black !important;
+            background-color: white !important;
+        }
+        @media (prefers-color-scheme: dark) {
+            select, option {
+                color: white !important;
+                background-color: #333 !important;
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -71,6 +65,7 @@
         <form id="dataForm" method="post" enctype="multipart/form-data" @submit.prevent="submitData">
             {% csrf_token %}
             <input type="file" name="data" id="dataInput" v-on:change="fileChanged($event)">
+            {% verbatim %}
             <label for="xColumnSelect">Colonna x:</label>
             <select id="xColumnSelect" v-model="selectedXColumn">
                 <option v-for="column in columnOptions" :key="column" :value="column">{{ column }}</option>
@@ -79,10 +74,10 @@
             <select id="yColumnSelect" v-model="selectedYColumn">
                 <option v-for="column in columnOptions" :key="column" :value="column">{{ column }}</option>
             </select>
+            {% endverbatim %}
             <button type="submit">Analizza Dati</button>
         </form>
-        <!-- Paragrafo per visualizzare il risultato -->
-        <p v-if="analysisResult">Risultato Analisi: {{ analysisResult }}</p>
+        <p v-if="analysisResult">{{ analysisResult }}</p>
         <div id="canvasContainer">
             <canvas id="scatterChart"></canvas>
         </div>
