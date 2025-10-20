@@ -9,6 +9,8 @@ new Vue({
     columnOptions: [],
     selectedXColumn: '',
     selectedYColumn: '',
+  selectedColorColumn: '',
+  selectedColorK: 5,
   },
   mounted() {
     console.log("Vue app mounted!");
@@ -16,6 +18,15 @@ new Vue({
     const appDiv = document.getElementById('app');
     if (!appDiv) {
       console.error("Vue: #app element not found in DOM!");
+    }
+  },
+  watch: {
+    selectedColorColumn(newVal, oldVal) {
+      // if a file is loaded, re-submit the form to recompute color buckets
+      if (this.fileInput && newVal && newVal !== oldVal) {
+        console.log('Color column changed, auto-submitting to recompute buckets:', newVal);
+        this.submitData();
+      }
     }
   },
   methods: {
@@ -33,9 +44,11 @@ new Vue({
 
       const formData = new FormData();
       formData.append('data', this.fileInput);
-      formData.append('x_column', this.selectedXColumn.trim());
-      formData.append('y_column', this.selectedYColumn.trim());
-
+  formData.append('x_column', this.selectedXColumn.trim());
+  formData.append('y_column', this.selectedYColumn.trim());
+  formData.append('color_column', this.selectedColorColumn.trim());
+  formData.append('color_k', String(this.selectedColorK));
+  console.log("color_column:", this.selectedColorColumn, "k:", this.selectedColorK);
       fetch('/analyze_data/', {
         method: 'POST',
         body: formData
@@ -43,9 +56,16 @@ new Vue({
       .then(response => response.json())
       .then(data => {
         console.log('Dati ricevuti dalla chiamata API:', data);
-        if ('result' in data && data.result.x_values && data.result.x_values.length > 0) {
-          this.analysisResult = "Analisi completata!";
-          this.drawScatter(data.result);
+          if ('result' in data && data.result.x_values && data.result.x_values.length > 0) {
+            this.analysisResult = "Analisi completata!";
+            this.analysisResult = "Analisi completata!";
+            this.drawScatter(data.result, data.color_values || null, data.legend || null);
+            // render legend (HTML) if provided
+            if (data.legend && Array.isArray(data.legend)) {
+              this.renderLegend(data.legend);
+            } else {
+              this.clearLegend();
+            }
         } else {
           this.analysisResult = "Nessun dato da visualizzare.";
           this.clearScatter();
@@ -93,7 +113,7 @@ new Vue({
       };
       reader.readAsText(this.fileInput);
     },
-    drawScatter(result) {
+    drawScatter(result, colorValues, legendArr) {
       console.log("Drawing scatter plot...", result);
       this.clearScatter();
       const canvas = document.getElementById('scatterChart');
@@ -102,18 +122,65 @@ new Vue({
         return;
       }
       const ctx = canvas.getContext('2d');
+      // If we have per-point colors and a legend, build one dataset per legend entry so the Chart legend shows each bucket
+      const datasets = [];
+      if (colorValues && colorValues.length === result.x_values.length && Array.isArray(legendArr) && legendArr.length > 0) {
+        // Build array of points with their colors
+        const pts = result.x_values.map((x, i) => ({ x, y: result.y_values[i], color: colorValues[i] }));
+        // For each legend entry, collect matching points
+        legendArr.forEach(entry => {
+          const color = entry.color;
+          const label = entry.label;
+          const dataPoints = pts.filter(p => p.color === color).map(p => ({ x: p.x, y: p.y }));
+          if (dataPoints.length > 0) {
+            datasets.push({
+              label: label,
+              data: dataPoints,
+              showLine: false,
+              pointBackgroundColor: color,
+              backgroundColor: color,
+              pointRadius: 3,
+            });
+          }
+        });
+        // Any points that didn't match legend colors (e.g., None or unexpected) go into an 'Uncategorized' gray dataset
+        const unmatched = pts.filter(p => !legendArr.some(e => e.color === p.color));
+        if (unmatched.length > 0) {
+          datasets.push({
+            label: 'Uncategorized',
+            data: unmatched.map(p => ({ x: p.x, y: p.y })),
+            showLine: false,
+            pointBackgroundColor: 'rgba(200,200,200,0.6)',
+            backgroundColor: 'rgba(200,200,200,0.6)',
+            pointRadius: 3,
+          });
+        }
+      } else {
+        // fallback: single dataset with uniform color or per-point colors if supported
+        datasets.push({
+          label: 'Scatter Plot',
+          data: result.x_values.map((x, i) => ({ x, y: result.y_values[i] })),
+          showLine: false,
+          pointBackgroundColor: (colorValues && colorValues.length === result.x_values.length) ? colorValues : 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          pointRadius: 3,
+        });
+      }
+
       this.scatterChart = new Chart(ctx, {
         type: 'scatter',
-        data: {
-          datasets: [{
-            label: 'Scatter Plot',
-            data: result.x_values.map((x, i) => ({ x, y: result.y_values[i] })),
-            backgroundColor: 'rgba(75, 192, 192, 1)',
-          }],
-        },
+        data: { datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                usePointStyle: true,
+              }
+            }
+          },
           scales: {
             x: {
               type: 'linear',
@@ -130,6 +197,39 @@ new Vue({
           },
         },
       });
+    },
+    renderLegend(legendArr) {
+      const container = document.getElementById('legend');
+      if (!container) return;
+      container.innerHTML = '';
+      const ul = document.createElement('ul');
+      ul.style.listStyle = 'none';
+      ul.style.padding = '0';
+      ul.style.display = 'flex';
+      ul.style.flexWrap = 'wrap';
+      legendArr.forEach(item => {
+        const li = document.createElement('li');
+        li.style.marginRight = '12px';
+        li.style.display = 'flex';
+        li.style.alignItems = 'center';
+        const sw = document.createElement('span');
+        sw.style.display = 'inline-block';
+        sw.style.width = '14px';
+        sw.style.height = '14px';
+        sw.style.background = item.color;
+        sw.style.marginRight = '6px';
+        sw.style.border = '1px solid rgba(0,0,0,0.2)';
+        const lbl = document.createElement('span');
+        lbl.textContent = item.label;
+        li.appendChild(sw);
+        li.appendChild(lbl);
+        ul.appendChild(li);
+      });
+      container.appendChild(ul);
+    },
+    clearLegend() {
+      const container = document.getElementById('legend');
+      if (container) container.innerHTML = '';
     },
     clearScatter() {
       if (this.scatterChart) {

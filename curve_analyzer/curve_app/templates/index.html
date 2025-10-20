@@ -74,6 +74,12 @@
             <select id="yColumnSelect" v-model="selectedYColumn">
                 <option v-for="column in columnOptions" :key="column" :value="column">{{ column }}</option>
             </select>
+            <label for="colorColumnSelect">Colore (opzionale):</label>
+            <select id="colorColumnSelect" v-model="selectedColorColumn">
+                <option v-for="column in columnOptions" :key="column" :value="column">{{ column }}</option>
+            </select>
+            <label for="colorK">K (k-means):</label>
+            <input id="colorK" type="number" v-model.number="selectedColorK" min="2" max="20" style="width:70px" />
             {% endverbatim %}
             <button type="submit">Analizza Dati</button>
         </form>
